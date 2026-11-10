@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BorrowBox - Home</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <!-- Our own CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg site-navbar sticky-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+          <span class="brand-mark">B</span>BorrowBox
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#how">How It Works</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#items">Items</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#services">Services</a>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center gap-3">
+            <a href="login.html" class="nav-login">Login</a>
+            <a href="signup.html" class="btn btn-primary">Sign Up</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <!-- Centered text and search -->
+          <div class="col-lg-8 text-center">
+            <span class="hero-tag">Campus Sharing Platform</span>
+            <h1>Borrow what you need. Share what you don't.</h1>
+            <p class="hero-text mx-auto">
+              BorrowBox connects people who have useful items with people who
+              need them, for free or for a small rent.
+            </p>
+
+            <form class="hero-search mx-auto" action="login.html">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search calculators, cameras, books..."
+              />
+              <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <div
+              class="hero-stats justify-content-center"
+              style="justify-content: center"
+            >
+              <div>
+                <h4>120+</h4>
+                <small>Members</small>
+              </div>
+              <div>
+                <h4>85+</h4>
+                <small>Items Listed</small>
+              </div>
+              <div>
+                <h4>2</h4>
+                <small>Simple Services</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how">
+      <div class="container text-center">
+        <span class="section-eyebrow">How It Works</span>
+        <h2 class="section-title">Three simple steps</h2>
+        <p class="section-sub">
+          From listing an item to getting it approved, the whole process is
+          quick and easy.
+        </p>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="step-number">1</div>
+            <h5>List an Item</h5>
+            <p class="text-muted">
+              Add your item with images and details, then choose Borrow (free)
+              or Rent (paid).
+            </p>
+          </div>
+          <div class="col-md-4">
+            <div class="step-number">2</div>
+            <h5>Find and Request</h5>
+            <p class="text-muted">
+              Browse or search for the item you need and send a request to the
+              owner.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <div class="step-number">3</div>
+            <h5>Get Approved</h5>
+            <p class="text-muted">
+              The owner approves your request and you use the item for the
+              agreed time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Available Items (dummy data) -->
+    <section class="section pt-0" id="items">
+      <div class="container">
+        <div class="text-center">
+          <span class="section-eyebrow">Available Items</span>
+          <h2 class="section-title">Items you can get today</h2>
+          <p class="section-sub">
+            A few of the items currently listed by members.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4 col-sm-6">
+            <div class="card h-100">
+              <div class="item-img">
+                <span class="tag tag-borrow">Borrow</span>
+                <i class="bi bi-calculator"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-1">Calculator (Casio fx-991)</h5>
+                <p class="text-muted small mb-3">Electronics</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price-free">Free</span>
+                  <a href="login.html" class="btn btn-outline-primary btn-sm"
+                    >Request</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-sm-6">
+            <div class="card h-100">
+              <div class="item-img">
+                <span class="tag tag-rent">Rent</span>
+                <i class="bi bi-camera"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-1">Digital Camera (Canon)</h5>
+                <p class="text-muted small mb-3">Electronics</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price-paid">Rs. 500 / day</span>
+                  <a href="login.html" class="btn btn-outline-primary btn-sm"
+                    >Request</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-sm-6">
+            <div class="card h-100">
+              <div class="item-img">
+                <span class="tag tag-borrow">Borrow</span>
+                <i class="bi bi-book"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-1">Data Structures Book</h5>
+                <p class="text-muted small mb-3">Books</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price-free">Free</span>
+                  <a href="login.html" class="btn btn-outline-primary btn-sm"
+                    >Request</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-sm-6">
+            <div class="card h-100">
+              <div class="item-img">
+                <span class="tag tag-rent">Rent</span>
+                <i class="bi bi-laptop"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-1">Laptop (Dell Inspiron)</h5>
+                <p class="text-muted small mb-3">Electronics</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price-paid">Rs. 800 / day</span>
+                  <a href="login.html" class="btn btn-outline-primary btn-sm"
+                    >Request</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-sm-6">
+            <div class="card h-100">
+              <div class="item-img">
+                <span class="tag tag-borrow">Borrow</span>
+                <i class="bi bi-trophy"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-1">Football</h5>
+                <p class="text-muted small mb-3">Sports</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price-free">Free</span>
+                  <a href="login.html" class="btn btn-outline-primary btn-sm"
+                    >Request</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-sm-6">
+            <div class="card h-100">
+              <div class="item-img">
+                <span class="tag tag-rent">Rent</span>
+                <i class="bi bi-trophy"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-1">Badminton Racket Set</h5>
+                <p class="text-muted small mb-3">Sports</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price-paid">Rs. 200 / day</span>
+                  <a href="login.html" class="btn btn-outline-primary btn-sm"
+                    >Request</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Two Services -->
+    <section class="section pt-0" id="services">
+      <div class="container">
+        <div class="text-center">
+          <span class="section-eyebrow">Our Services</span>
+          <h2 class="section-title">Two ways to share</h2>
+          <p class="section-sub">
+            Every item on BorrowBox is either free to borrow or available to
+            rent.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="service-box">
+              <span class="tag tag-borrow">Borrow</span>
+              <h4 class="mt-3">Free for a set time</h4>
+              <ul>
+                <li>
+                  <i class="bi bi-check-circle-fill"></i>No payment needed
+                </li>
+                <li>
+                  <i class="bi bi-check-circle-fill"></i>Choose how long you
+                  need the item
+                </li>
+                <li>
+                  <i class="bi bi-check-circle-fill"></i>Owner approves your
+                  request
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="service-box">
+              <span class="tag tag-rent">Rent</span>
+              <h4 class="mt-3">Paid for a set time</h4>
+              <ul>
+                <li>
+                  <i class="bi bi-check-circle-fill"></i>Price is set by the
+                  owner
+                </li>
+                <li>
+                  <i class="bi bi-check-circle-fill"></i>Choose the rental
+                  duration
+                </li>
+                <li>
+                  <i class="bi bi-check-circle-fill"></i>Same simple request
+                  process
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-band">
+      <div class="container">
+        <h2>Ready to start sharing?</h2>
+        <p class="mb-4">
+          Create a free account and list your first item in minutes.
+        </p>
+        <a href="signup.html" class="btn btn-light-custom btn-lg"
+          >Create Account</a
+        >
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer"></footer>
+  </body>
+</html>

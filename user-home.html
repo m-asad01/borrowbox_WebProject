@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BorrowBox - User Home</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Navbar (logged-in user) -->
+    <nav class="navbar navbar-expand-lg site-navbar sticky-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="user-home.html">
+          <span class="brand-mark">B</span>BorrowBox
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="user-home.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Browse Items</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">My Listings</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">My Requests</a>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center gap-3">
+            <span class="avatar">MA</span>
+            <a href="index.html" class="btn btn-outline-secondary btn-sm"
+              >Logout</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Welcome -->
+      <div
+        class="d-flex justify-content-between align-items-center flex-wrap mb-4"
+      >
+        <div>
+          <h2 class="mb-1">Welcome, Muhammad Asad</h2>
+          <p class="text-muted mb-0">Here is a quick look at your activity.</p>
+        </div>
+        <a href="#" class="btn btn-primary mt-3 mt-md-0"
+          ><i class="bi bi-plus-lg"></i> Add New Item</a
+        >
+      </div>
+
+      <!-- Summary cards (dummy numbers) -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+            <div>
+              <h3>5</h3>
+              <small>My Listings</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div>
+              <h3>3</h3>
+              <small>Pending Requests</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-arrow-left-right"></i></div>
+            <div>
+              <h3>2</h3>
+              <small>Currently Borrowed / Rented</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="mb-3">Find an Item</h5>
+          <form class="row g-2">
+            <div class="col-md-6">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search items (e.g. calculator, camera)"
+              />
+            </div>
+            <div class="col-md-3">
+              <select class="form-select">
+                <option selected>All Categories</option>
+                <option>Books</option>
+                <option>Electronics</option>
+                <option>Sports</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select">
+                <option selected>Borrow / Rent</option>
+                <option>Borrow (Free)</option>
+                <option>Rent (Paid)</option>
+              </select>
+            </div>
+            <div class="col-md-1 d-grid">
+              <button type="button" class="btn btn-primary">Go</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Recent requests (dummy data) -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="mb-3">My Recent Requests</h5>
+          <div class="table-responsive">
+            <table class="table table-clean align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Type</th>
+                  <th>Owner</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Calculator (Casio fx-991)</td>
+                  <td><span class="tag tag-borrow">Borrow</span></td>
+                  <td>Ali Raza</td>
+                  <td>2 days</td>
+                  <td><span class="tag tag-pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>Digital Camera (Canon)</td>
+                  <td><span class="tag tag-rent">Rent</span></td>
+                  <td>Sara Khan</td>
+                  <td>3 days</td>
+                  <td><span class="tag tag-approved">Approved</span></td>
+                </tr>
+                <tr>
+                  <td>Data Structures Book</td>
+                  <td><span class="tag tag-borrow">Borrow</span></td>
+                  <td>Usman Tariq</td>
+                  <td>1 week</td>
+                  <td><span class="tag tag-rejected">Rejected</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="simple-footer text-center">
+      <div class="container">
+        &copy; 2026 BorrowBox | Muhammad Asad | BSEF24A034
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
