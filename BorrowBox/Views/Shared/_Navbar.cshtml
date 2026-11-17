@@ -1,0 +1,117 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isLoggedIn = User.Identity.IsAuthenticated;
+    var isAdmin = User.IsInRole("Admin");
+
+    // Initials shown in the round avatar (for example "MA")
+    var initials = "";
+    if (isLoggedIn)
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.FullName))
+        {
+            var parts = currentUser.FullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            initials = parts[0].Substring(0, 1);
+            if (parts.Length > 1)
+            {
+                initials = initials + parts[1].Substring(0, 1);
+            }
+            initials = initials.ToUpper();
+        }
+    }
+
+    var brandController = isAdmin ? "Admin" : (isLoggedIn ? "User" : "Home");
+}
+
+<nav class="navbar navbar-expand-lg site-navbar sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" asp-controller="@brandController" asp-action="Index">
+            <span class="brand-mark">B</span>BorrowBox
+            @if (isAdmin)
+            {
+                <span class="role-tag">Admin</span>
+            }
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menu">
+
+            @if (isAdmin)
+            {
+                @* ---------- Admin menu ---------- *@
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(controller == "Admin" ? "active" : "")" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Index" asp-fragment="users">Manage Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Index" asp-fragment="listings">Manage Listings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Index" asp-fragment="reports">Reports</a>
+                    </li>
+                </ul>
+            }
+            else if (isLoggedIn)
+            {
+                @* ---------- Member menu ---------- *@
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(controller == "User" ? "active" : "")" asp-controller="User" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(controller == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index" asp-fragment="items">Browse Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="User" asp-action="Index" asp-fragment="listings">My Listings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="User" asp-action="Index" asp-fragment="requests">My Requests</a>
+                    </li>
+                </ul>
+            }
+            else
+            {
+                @* ---------- Visitor menu ---------- *@
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(controller == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="how">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="items">Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="services">Services</a>
+                    </li>
+                </ul>
+            }
+
+            <div class="d-flex align-items-center gap-3">
+                @if (isLoggedIn)
+                {
+                    <span class="avatar">@initials</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="nav-login">Login</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Sign Up</a>
+                }
+            </div>
+        </div>
+    </div>
+</nav>

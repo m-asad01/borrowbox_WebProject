@@ -1,0 +1,79 @@
+@model ItemFormViewModel
+@{
+    ViewData["Title"] = "Add New Item";
+}
+
+<div class="auth-wrap">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="text-center mb-1">Add a new item</h3>
+                        <p class="text-center text-muted mb-4">List something others can borrow or rent</p>
+
+                        <form asp-controller="Items" asp-action="Create" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Title" class="form-label"></label>
+                                <input asp-for="Title" class="form-control" placeholder="e.g. Scientific Calculator" />
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Category" class="form-label"></label>
+                                    <select asp-for="Category" asp-items="@(new SelectList(ItemOptions.Categories))" class="form-select"></select>
+                                    <span asp-validation-for="Category" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ListingType" class="form-label"></label>
+                                    <select asp-for="ListingType" asp-items="@(new SelectList(ItemOptions.ListingTypes))" class="form-select"></select>
+                                    <span asp-validation-for="ListingType" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3" id="priceGroup">
+                                <label asp-for="PricePerDay" class="form-label"></label>
+                                <input asp-for="PricePerDay" type="number" min="1" step="1" class="form-control" placeholder="e.g. 500" />
+                                <span asp-validation-for="PricePerDay" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Description" class="form-label"></label>
+                                <textarea asp-for="Description" rows="3" class="form-control" placeholder="Short details about the item"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">Save Item</button>
+                                <a asp-controller="User" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show the price box only when the service is Rent
+        var typeSelect = document.getElementById("ListingType");
+        var priceGroup = document.getElementById("priceGroup");
+
+        function togglePrice() {
+            if (typeSelect.value === "Rent") {
+                priceGroup.style.display = "block";
+            } else {
+                priceGroup.style.display = "none";
+            }
+        }
+
+        typeSelect.addEventListener("change", togglePrice);
+        togglePrice();
+    </script>
+}

@@ -1,0 +1,216 @@
+@model UserDashboardViewModel
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<div class="container mt-4">
+
+    <!-- Welcome -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+        <div>
+            <h2 class="mb-1">Welcome, @Model.FullName</h2>
+            <p class="text-muted mb-0">Here is a quick look at your activity.</p>
+        </div>
+        <a asp-controller="Items" asp-action="Create" class="btn btn-primary mt-3 mt-md-0">
+            <i class="bi bi-plus-lg"></i> Add New Item
+        </a>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+                <div>
+                    <h3>@Model.MyListingsCount</h3>
+                    <small>My Listings</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-hourglass-split"></i></div>
+                <div>
+                    <h3>@Model.PendingCount</h3>
+                    <small>Pending Requests</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-arrow-left-right"></i></div>
+                <div>
+                    <h3>@Model.ApprovedCount</h3>
+                    <small>Currently Borrowed / Rented</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">Find an Item</h5>
+            <form class="row g-2" asp-controller="Home" asp-action="Index" method="get">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Search items (e.g. calculator, camera)" />
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach (var category in ItemOptions.Categories)
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="type" class="form-select">
+                        <option value="">Borrow / Rent</option>
+                        <option value="Borrow">Borrow (Free)</option>
+                        <option value="Rent">Rent (Paid)</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-grid">
+                    <button type="submit" class="btn btn-primary">Go</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- My requests -->
+    <div class="card mb-4" id="requests">
+        <div class="card-body">
+            <h5 class="mb-3">My Recent Requests</h5>
+            <div class="table-responsive">
+                <table class="table table-clean align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Type</th>
+                            <th>Owner</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.MyRequests)
+                        {
+                            <tr>
+                                <td>@r.Item.Title</td>
+                                <td><span class="tag @(r.Item.ListingType == "Rent" ? "tag-rent" : "tag-borrow")">@r.Item.ListingType</span></td>
+                                <td>@r.Item.Owner.FullName</td>
+                                <td>@r.Days @(r.Days == 1 ? "day" : "days")</td>
+                                <td><span class="tag @("tag-" + r.Status.ToLower())">@r.Status</span></td>
+                            </tr>
+                        }
+                        @if (!Model.MyRequests.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">You have not sent any requests yet.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requests on my items -->
+    <div class="card mb-4" id="incoming">
+        <div class="card-body">
+            <h5 class="mb-3">Requests on My Items</h5>
+            <div class="table-responsive">
+                <table class="table table-clean align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Requested By</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.IncomingRequests)
+                        {
+                            <tr>
+                                <td>@r.Item.Title</td>
+                                <td>@r.Requester.FullName</td>
+                                <td>@r.Days @(r.Days == 1 ? "day" : "days")</td>
+                                <td><span class="tag @("tag-" + r.Status.ToLower())">@r.Status</span></td>
+                                <td>
+                                    @if (r.Status == "Pending")
+                                    {
+                                        <form asp-controller="Items" asp-action="Respond" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@r.Id" />
+                                            <input type="hidden" name="approve" value="true" />
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">Approve</button>
+                                        </form>
+                                        <form asp-controller="Items" asp-action="Respond" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@r.Id" />
+                                            <input type="hidden" name="approve" value="false" />
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">Reject</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Done</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.IncomingRequests.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">No one has requested your items yet.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- My listings -->
+    <div class="card" id="listings">
+        <div class="card-body">
+            <h5 class="mb-3">My Listings</h5>
+            <div class="table-responsive">
+                <table class="table table-clean align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Listed On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.MyListings)
+                        {
+                            <tr>
+                                <td>@item.Title</td>
+                                <td>@item.Category</td>
+                                <td><span class="tag @(item.ListingType == "Rent" ? "tag-rent" : "tag-borrow")">@item.ListingType</span></td>
+                                <td>
+                                    @if (item.ListingType == "Rent")
+                                    {
+                                        <span>Rs. @item.PricePerDay.ToString("0") / day</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Free</span>
+                                    }
+                                </td>
+                                <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                            </tr>
+                        }
+                        @if (!Model.MyListings.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">You have not listed any items yet.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

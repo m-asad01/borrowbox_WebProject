@@ -1,0 +1,154 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+    ViewData["BigFooter"] = true;
+}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <span class="hero-tag">Campus Sharing Platform</span>
+                <h1>Borrow what you need. Share what you don't.</h1>
+                <p class="hero-text mx-auto">
+                    BorrowBox connects people who have useful items with people who need them, for free or for a small rent.
+                </p>
+
+                <form class="hero-search mx-auto" asp-controller="Home" asp-action="Index" method="get">
+                    <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Search calculators, cameras, books..." />
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+
+                <div class="hero-stats justify-content-center">
+                    <div>
+                        <h4>@Model.MemberCount</h4>
+                        <small>Members</small>
+                    </div>
+                    <div>
+                        <h4>@Model.ItemCount</h4>
+                        <small>Items Listed</small>
+                    </div>
+                    <div>
+                        <h4>2</h4>
+                        <small>Simple Services</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section" id="how">
+    <div class="container text-center">
+        <span class="section-eyebrow">How It Works</span>
+        <h2 class="section-title">Three simple steps</h2>
+        <p class="section-sub">From listing an item to getting it approved, the whole process is quick and easy.</p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-number">1</div>
+                <h5>List an Item</h5>
+                <p class="text-muted">Add your item with details, then choose Borrow (free) or Rent (paid).</p>
+            </div>
+            <div class="col-md-4">
+                <div class="step-number">2</div>
+                <h5>Find and Request</h5>
+                <p class="text-muted">Browse or search for the item you need and send a request to the owner.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="step-number">3</div>
+                <h5>Get Approved</h5>
+                <p class="text-muted">The owner approves your request and you use the item for the agreed time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Available Items (loaded from the database) -->
+<section class="section pt-0" id="items">
+    <div class="container">
+        <div class="text-center">
+            <span class="section-eyebrow">Available Items</span>
+            <h2 class="section-title">@(Model.HasFilter ? "Search results" : "Items you can get today")</h2>
+            <p class="section-sub">
+                @(Model.HasFilter ? "Showing the items that match your search." : "A few of the items currently listed by members.")
+            </p>
+            @if (Model.HasFilter)
+            {
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm mb-4">Clear search</a>
+            }
+        </div>
+
+        <div class="row g-4">
+            @foreach (var item in Model.Items)
+            {
+                <partial name="_ItemCard" model="item" />
+            }
+        </div>
+
+        @if (!Model.Items.Any())
+        {
+            <p class="text-center text-muted mt-4">No items found.</p>
+        }
+    </div>
+</section>
+
+<!-- Two Services -->
+<section class="section pt-0" id="services">
+    <div class="container">
+        <div class="text-center">
+            <span class="section-eyebrow">Our Services</span>
+            <h2 class="section-title">Two ways to share</h2>
+            <p class="section-sub">Every item on BorrowBox is either free to borrow or available to rent.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="service-box">
+                    <span class="tag tag-borrow">Borrow</span>
+                    <h4 class="mt-3">Free for a set time</h4>
+                    <ul>
+                        <li><i class="bi bi-check-circle-fill"></i>No payment needed</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Choose how long you need the item</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Owner approves your request</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="service-box">
+                    <span class="tag tag-rent">Rent</span>
+                    <h4 class="mt-3">Paid for a set time</h4>
+                    <ul>
+                        <li><i class="bi bi-check-circle-fill"></i>Price is set by the owner</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Choose the rental duration</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Same simple request process</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action (only for visitors who are not logged in) -->
+@if (!User.Identity.IsAuthenticated)
+{
+    <section class="cta-band">
+        <div class="container">
+            <h2>Ready to start sharing?</h2>
+            <p class="mb-4">Create a free account and list your first item in minutes.</p>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-light-custom btn-lg">Create Account</a>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    @if (Model.HasFilter)
+    {
+        <script>
+            // After a search, scroll down to the results
+            document.getElementById("items").scrollIntoView();
+        </script>
+    }
+}

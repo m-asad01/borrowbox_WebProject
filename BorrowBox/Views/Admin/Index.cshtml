@@ -1,0 +1,201 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+
+    <!-- Heading -->
+    <div class="mb-4">
+        <h2 class="mb-1">Admin Dashboard</h2>
+        <p class="text-muted mb-0">Overview of the BorrowBox platform.</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div>
+                    <h3>@Model.TotalUsers</h3>
+                    <small>Total Users</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-box-seam"></i></div>
+                <div>
+                    <h3>@Model.TotalListings</h3>
+                    <small>Total Listings</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-arrow-left-right"></i></div>
+                <div>
+                    <h3>@Model.ActiveRequests</h3>
+                    <small>Active Requests</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="bi bi-flag"></i></div>
+                <div>
+                    <h3>@Model.ReportedCount</h3>
+                    <small>Reported Items</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users -->
+    <div class="card mb-4" id="users">
+        <div class="card-body">
+            <h5 class="mb-3">Users</h5>
+            <div class="table-responsive">
+                <table class="table table-clean align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Listings</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model.Users)
+                        {
+                            <tr>
+                                <td>@u.FullName</td>
+                                <td>@u.Email</td>
+                                <td>@u.ListingsCount</td>
+                                <td>
+                                    @if (u.IsBlocked)
+                                    {
+                                        <span class="tag tag-blocked">Blocked</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tag tag-active">Active</span>
+                                    }
+                                </td>
+                                <td>
+                                    <form asp-controller="Admin" asp-action="ToggleBlock" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@u.Id" />
+                                        @if (u.IsBlocked)
+                                        {
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">Unblock</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">Block</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Users.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">No users yet.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- All listings -->
+    <div class="card mb-4" id="listings">
+        <div class="card-body">
+            <h5 class="mb-3">All Listings</h5>
+            <div class="table-responsive">
+                <table class="table table-clean align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Owner</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Title</td>
+                                <td>@item.Owner.FullName</td>
+                                <td><span class="tag @(item.ListingType == "Rent" ? "tag-rent" : "tag-borrow")">@item.ListingType</span></td>
+                                <td>
+                                    @if (item.ListingType == "Rent")
+                                    {
+                                        <span>Rs. @item.PricePerDay.ToString("0") / day</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Free</span>
+                                    }
+                                </td>
+                                <td>
+                                    <form asp-controller="Admin" asp-action="RemoveItem" method="post" class="d-inline" onsubmit="return confirm('Remove this item?');">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Items.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">No listings yet.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reported items -->
+    <div class="card" id="reports">
+        <div class="card-body">
+            <h5 class="mb-3">Reported Items</h5>
+            <div class="table-responsive">
+                <table class="table table-clean align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Owner</th>
+                            <th>Reason</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.Reports)
+                        {
+                            <tr>
+                                <td>@report.Item.Title</td>
+                                <td>@report.Item.Owner.FullName</td>
+                                <td>@report.Reason</td>
+                                <td>
+                                    <a asp-controller="Home" asp-action="Index" asp-route-search="@report.Item.Title" class="btn btn-outline-primary btn-sm">View</a>
+                                    <form asp-controller="Admin" asp-action="RemoveItem" method="post" class="d-inline" onsubmit="return confirm('Remove this item?');">
+                                        <input type="hidden" name="id" value="@report.Item.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Reports.Any())
+                        {
+                            <tr><td colspan="4" class="text-center text-muted">No reported items.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

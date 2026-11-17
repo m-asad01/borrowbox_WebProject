@@ -1,0 +1,52 @@
+@model Item
+@using System.Security.Claims
+
+@{
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var isLoggedIn = User.Identity.IsAuthenticated;
+    var isMember = User.IsInRole("User");
+    var isRent = Model.ListingType == "Rent";
+    var isMine = isLoggedIn && Model.OwnerId == currentUserId;
+}
+
+<div class="col-lg-4 col-sm-6">
+    <div class="card h-100">
+        <div class="item-img">
+            <span class="tag @(isRent ? "tag-rent" : "tag-borrow")">@Model.ListingType</span>
+            <i class="bi @Model.IconClass"></i>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title mb-1">@Model.Title</h5>
+            <p class="text-muted small mb-1">@Model.Category | by @Model.Owner.FullName</p>
+            <p class="small mb-3">@Model.Description</p>
+
+            <div class="d-flex justify-content-between align-items-center">
+                @if (isRent)
+                {
+                    <span class="price-paid">Rs. @Model.PricePerDay.ToString("0") / day</span>
+                }
+                else
+                {
+                    <span class="price-free">Free</span>
+                }
+
+                @if (!isLoggedIn)
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-sm">Request</a>
+                }
+                else if (isMine)
+                {
+                    <span class="small text-muted">Your item</span>
+                }
+                else if (isMember)
+                {
+                    <form asp-controller="Items" asp-action="RequestItem" method="post" class="d-flex gap-1">
+                        <input type="hidden" name="itemId" value="@Model.Id" />
+                        <input type="number" name="days" value="1" min="1" max="30" class="form-control form-control-sm days-input" title="Number of days" />
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Request</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-5">
+                <h5>BorrowBox</h5>
+                <p class="mb-0">A peer-to-peer platform to borrow or rent useful items from people around you.</p>
+            </div>
+            <div class="col-md-3">
+                <h6>Quick Links</h6>
+                <a asp-controller="Home" asp-action="Index">Home</a>
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <a asp-controller="Account" asp-action="Login">Login</a>
+                    <a asp-controller="Account" asp-action="Register">Sign Up</a>
+                }
+            </div>
+            <div class="col-md-4">
+                <h6>Project Info</h6>
+                <p class="mb-1">Web Technologies Semester Project</p>
+                <p class="mb-0">Muhammad Asad | BSEF24A034</p>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            &copy; 2026 BorrowBox. All rights reserved.
+        </div>
+    </div>
+</footer>
