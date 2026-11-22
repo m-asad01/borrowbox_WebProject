@@ -4,7 +4,7 @@
     ViewData["BigFooter"] = true;
 }
 
-<!-- Hero Section -->
+@section Hero {
 <section class="hero">
     <div class="container">
         <div class="row justify-content-center">
@@ -15,8 +15,8 @@
                     BorrowBox connects people who have useful items with people who need them, for free or for a small rent.
                 </p>
 
-                <form class="hero-search mx-auto" asp-controller="Home" asp-action="Index" method="get">
-                    <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Search calculators, cameras, books..." />
+                <form id="searchForm" class="hero-search mx-auto" asp-controller="Home" asp-action="Index" method="get">
+                    <input type="text" id="searchBox" name="search" value="@Model.Search" class="form-control" placeholder="Search calculators, cameras, books..." />
                     <button type="submit" class="btn btn-primary">Search</button>
                 </form>
 
@@ -38,8 +38,8 @@
         </div>
     </div>
 </section>
+}
 
-<!-- How It Works -->
 <section class="section" id="how">
     <div class="container text-center">
         <span class="section-eyebrow">How It Works</span>
@@ -66,7 +66,6 @@
     </div>
 </section>
 
-<!-- Available Items (loaded from the database) -->
 <section class="section pt-0" id="items">
     <div class="container">
         <div class="text-center">
@@ -81,21 +80,12 @@
             }
         </div>
 
-        <div class="row g-4">
-            @foreach (var item in Model.Items)
-            {
-                <partial name="_ItemCard" model="item" />
-            }
+        <div class="row g-4" id="itemsList">
+            <partial name="_ItemList" model="Model.Items" />
         </div>
-
-        @if (!Model.Items.Any())
-        {
-            <p class="text-center text-muted mt-4">No items found.</p>
-        }
     </div>
 </section>
 
-<!-- Two Services -->
 <section class="section pt-0" id="services">
     <div class="container">
         <div class="text-center">
@@ -131,7 +121,6 @@
     </div>
 </section>
 
-<!-- Call to Action (only for visitors who are not logged in) -->
 @if (!User.Identity.IsAuthenticated)
 {
     <section class="cta-band">
@@ -144,11 +133,35 @@
 }
 
 @section Scripts {
-    @if (Model.HasFilter)
-    {
-        <script>
-            // After a search, scroll down to the results
-            document.getElementById("items").scrollIntoView();
-        </script>
-    }
+    <script>
+        var searchUrl = '@Url.Action("SearchItems", "Home")';
+        var requestUrl = '@Url.Action("RequestItem", "Items")';
+
+        $("#searchForm").submit(function (e) {
+            e.preventDefault();
+
+            var text = $("#searchBox").val();
+
+            $.get(searchUrl, { search: text }, function (html) {
+                $("#itemsList").html(html);
+                document.getElementById("items").scrollIntoView();
+            });
+        });
+
+        $(document).on("click", ".btn-request", function () {
+            var button = $(this);
+            var itemId = button.data("id");
+            var days = button.siblings(".days-input").val();
+            var token = $("#tokenForm input[name='__RequestVerificationToken']").val();
+
+            $.post(requestUrl, { itemId: itemId, days: days, __RequestVerificationToken: token }, function (result) {
+                showMessage(result.message, result.success);
+            });
+        });
+
+        @if (Model.HasFilter)
+        {
+                <text>document.getElementById("items").scrollIntoView();</text>
+        }
+    </script>
 }

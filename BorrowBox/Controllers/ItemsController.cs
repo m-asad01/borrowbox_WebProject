@@ -1,27 +1,26 @@
-using BorrowBox.Data;
 using BorrowBox.Models;
+using BorrowBox.Repositories;
 using BorrowBox.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BorrowBox.Controllers
 {
-    // Only members (role User) can add items and send requests
     [Authorize(Roles = "User")]
     public class ItemsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IItemRepository _itemRepository;
+        private readonly IRequestRepository _requestRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ItemsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public ItemsController(IItemRepository itemRepository, IRequestRepository requestRepository, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _itemRepository = itemRepository;
+            _requestRepository = requestRepository;
             _userManager = userManager;
         }
 
-        // ---------- Add a new item ----------
         [HttpGet]
         public IActionResult Create()
         {
@@ -30,9 +29,8 @@ namespace BorrowBox.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ItemFormViewModel model)
+        public IActionResult Create(ItemFormViewModel model)
         {
-            // A rent item must have a price
             if (model.ListingType == "Rent" && (model.PricePerDay == null || model.PricePerDay <= 0))
             {
                 ModelState.AddModelError("PricePerDay", "Please enter a price per day for rent items.");
@@ -54,45 +52,37 @@ namespace BorrowBox.Controllers
                 OwnerId = _userManager.GetUserId(User)
             };
 
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
+            _itemRepository.Add(item);
 
             TempData["Message"] = "Your item has been listed.";
             return Redirect(Url.Action("Index", "User") + "#listings");
         }
 
-        // ---------- Send a request for an item ----------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestItem(int itemId, int days)
+        public IActionResult RequestItem(int itemId, int days)
         {
-            var item = await _context.Items.FindAsync(itemId);
+            var item = _itemRepository.GetById(itemId);
             if (item == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Item not found." });
             }
 
             var userId = _userManager.GetUserId(User);
 
             if (item.OwnerId == userId)
             {
-                TempData["Error"] = "You cannot request your own item.";
-                return RedirectToAction("Index", "User");
+                return Json(new { success = false, message = "You cannot request your own item." });
             }
 
             if (days < 1 || days > 30)
             {
-                TempData["Error"] = "Please choose between 1 and 30 days.";
-                return RedirectToAction("Index", "User");
+                return Json(new { success = false, message = "Please choose between 1 and 30 days." });
             }
 
-            var alreadyRequested = await _context.ItemRequests.AnyAsync(r =>
-                r.ItemId == itemId && r.RequesterId == userId && r.Status == "Pending");
-
-            if (alreadyRequested)
+            if (_requestRepository.HasPending(itemId, userId))
             {
-                TempData["Error"] = "You already have a pending request for this item.";
-                return RedirectToAction("Index", "User");
+                return Json(new { success = false, message = "You already have a pending request for this item." });
             }
 
             var request = new ItemRequest
@@ -104,41 +94,36 @@ namespace BorrowBox.Controllers
                 RequestedAt = DateTime.Now
             };
 
-            _context.ItemRequests.Add(request);
-            await _context.SaveChangesAsync();
+            _requestRepository.Add(request);
 
-            TempData["Message"] = "Your request has been sent to the owner.";
-            return Redirect(Url.Action("Index", "User") + "#requests");
+            return Json(new { success = true, message = "Your request has been sent to the owner." });
         }
 
-        // ---------- Owner approves or rejects a request ----------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Respond(int id, bool approve)
+        public IActionResult Respond(int id, bool approve)
         {
-            var request = await _context.ItemRequests
-                .Include(r => r.Item)
-                .FirstOrDefaultAsync(r => r.Id == id);
-
+            var request = _requestRepository.GetById(id);
             if (request == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Request not found." });
             }
 
-            // Only the owner of the item can answer the request
-            if (request.Item.OwnerId != _userManager.GetUserId(User))
+            var item = _itemRepository.GetById(request.ItemId);
+            if (item.OwnerId != _userManager.GetUserId(User))
             {
-                return Forbid();
+                return Json(new { success = false, message = "You cannot answer this request." });
             }
 
-            if (request.Status == "Pending")
+            if (request.Status != "Pending")
             {
-                request.Status = approve ? "Approved" : "Rejected";
-                await _context.SaveChangesAsync();
-                TempData["Message"] = approve ? "Request approved." : "Request rejected.";
+                return Json(new { success = false, message = "This request is already answered." });
             }
 
-            return Redirect(Url.Action("Index", "User") + "#incoming");
+            string status = approve ? "Approved" : "Rejected";
+            _requestRepository.UpdateStatus(id, status);
+
+            return Json(new { success = true, message = "Request " + status.ToLower() + ".", status = status });
         }
     }
 }

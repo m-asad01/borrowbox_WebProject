@@ -1,45 +1,22 @@
-using BorrowBox.Data;
-using BorrowBox.Models;
+using BorrowBox.Repositories;
 using BorrowBox.ViewModels;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BorrowBox.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IItemRepository _itemRepository;
+        private readonly IUserRepository _userRepository;
 
-        public HomeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public HomeController(IItemRepository itemRepository, IUserRepository userRepository)
         {
-            _context = context;
-            _userManager = userManager;
+            _itemRepository = itemRepository;
+            _userRepository = userRepository;
         }
 
-        // Public home page. Also used for searching items.
-        public async Task<IActionResult> Index(string search, string category, string type)
+        public IActionResult Index(string search, string category, string type)
         {
-            var query = _context.Items.Include(i => i.Owner).AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                query = query.Where(i => i.Title.Contains(search) || i.Description.Contains(search));
-            }
-
-            if (!string.IsNullOrWhiteSpace(category))
-            {
-                query = query.Where(i => i.Category == category);
-            }
-
-            if (!string.IsNullOrWhiteSpace(type))
-            {
-                query = query.Where(i => i.ListingType == type);
-            }
-
-            query = query.OrderByDescending(i => i.CreatedAt);
-
             var model = new HomeViewModel
             {
                 Search = search,
@@ -47,17 +24,26 @@ namespace BorrowBox.Controllers
                 ListingType = type
             };
 
-            // Without a search, show only the latest 6 items
-            if (!model.HasFilter)
-            {
-                query = query.Take(6);
-            }
+            int take = model.HasFilter ? 100 : 6;
 
-            model.Items = await query.ToListAsync();
-            model.ItemCount = await _context.Items.CountAsync();
-            model.MemberCount = (await _userManager.GetUsersInRoleAsync("User")).Count;
+            model.Items = _itemRepository.Search(search, category, type, take);
+            model.ItemCount = _itemRepository.Count();
+            model.MemberCount = _userRepository.CountMembers();
 
             return View(model);
+        }
+
+        public IActionResult SearchItems(string search, string category, string type)
+        {
+            bool hasFilter = !string.IsNullOrWhiteSpace(search)
+                          || !string.IsNullOrWhiteSpace(category)
+                          || !string.IsNullOrWhiteSpace(type);
+
+            int take = hasFilter ? 100 : 6;
+
+            var items = _itemRepository.Search(search, category, type, take);
+
+            return PartialView("_ItemList", items);
         }
 
         public IActionResult Error()

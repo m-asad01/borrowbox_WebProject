@@ -1,0 +1,11 @@
+﻿@model List<Item>
+
+@foreach (var item in Model)
+{
+    <partial name="_ItemCard" model="item" />
+}
+
+@if (!Model.Any())
+{
+    <p class="col-12 text-center text-muted mt-4">No items found.</p>
+}

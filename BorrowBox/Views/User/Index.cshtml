@@ -5,7 +5,6 @@
 
 <div class="container mt-4">
 
-    <!-- Welcome -->
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
         <div>
             <h2 class="mb-1">Welcome, @Model.FullName</h2>
@@ -16,7 +15,6 @@
         </a>
     </div>
 
-    <!-- Summary cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="stat-card">
@@ -47,7 +45,6 @@
         </div>
     </div>
 
-    <!-- Search -->
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="mb-3">Find an Item</h5>
@@ -78,7 +75,6 @@
         </div>
     </div>
 
-    <!-- My requests -->
     <div class="card mb-4" id="requests">
         <div class="card-body">
             <h5 class="mb-3">My Recent Requests</h5>
@@ -97,9 +93,9 @@
                         @foreach (var r in Model.MyRequests)
                         {
                             <tr>
-                                <td>@r.Item.Title</td>
-                                <td><span class="tag @(r.Item.ListingType == "Rent" ? "tag-rent" : "tag-borrow")">@r.Item.ListingType</span></td>
-                                <td>@r.Item.Owner.FullName</td>
+                                <td>@r.ItemTitle</td>
+                                <td><span class="tag @(r.ItemListingType == "Rent" ? "tag-rent" : "tag-borrow")">@r.ItemListingType</span></td>
+                                <td>@r.OwnerName</td>
                                 <td>@r.Days @(r.Days == 1 ? "day" : "days")</td>
                                 <td><span class="tag @("tag-" + r.Status.ToLower())">@r.Status</span></td>
                             </tr>
@@ -114,7 +110,6 @@
         </div>
     </div>
 
-    <!-- Requests on my items -->
     <div class="card mb-4" id="incoming">
         <div class="card-body">
             <h5 class="mb-3">Requests on My Items</h5>
@@ -132,24 +127,16 @@
                     <tbody>
                         @foreach (var r in Model.IncomingRequests)
                         {
-                            <tr>
-                                <td>@r.Item.Title</td>
-                                <td>@r.Requester.FullName</td>
+                            <tr id="request-@r.Id">
+                                <td>@r.ItemTitle</td>
+                                <td>@r.RequesterName</td>
                                 <td>@r.Days @(r.Days == 1 ? "day" : "days")</td>
-                                <td><span class="tag @("tag-" + r.Status.ToLower())">@r.Status</span></td>
-                                <td>
+                                <td class="status-cell"><span class="tag @("tag-" + r.Status.ToLower())">@r.Status</span></td>
+                                <td class="action-cell">
                                     @if (r.Status == "Pending")
                                     {
-                                        <form asp-controller="Items" asp-action="Respond" method="post" class="d-inline">
-                                            <input type="hidden" name="id" value="@r.Id" />
-                                            <input type="hidden" name="approve" value="true" />
-                                            <button type="submit" class="btn btn-outline-primary btn-sm">Approve</button>
-                                        </form>
-                                        <form asp-controller="Items" asp-action="Respond" method="post" class="d-inline">
-                                            <input type="hidden" name="id" value="@r.Id" />
-                                            <input type="hidden" name="approve" value="false" />
-                                            <button type="submit" class="btn btn-outline-secondary btn-sm">Reject</button>
-                                        </form>
+                                        <button type="button" class="btn btn-outline-primary btn-sm btn-respond" data-id="@r.Id" data-approve="true">Approve</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm btn-respond" data-id="@r.Id" data-approve="false">Reject</button>
                                     }
                                     else
                                     {
@@ -168,7 +155,6 @@
         </div>
     </div>
 
-    <!-- My listings -->
     <div class="card" id="listings">
         <div class="card-body">
             <h5 class="mb-3">My Listings</h5>
@@ -214,3 +200,33 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        var respondUrl = '@Url.Action("Respond", "Items")';
+
+        $(document).on("click", ".btn-respond", function () {
+            var id = $(this).data("id");
+            var approve = $(this).data("approve");
+            var token = $("#tokenForm input[name='__RequestVerificationToken']").val();
+
+            $.ajax({
+                url: respondUrl,
+                type: "POST",
+                data: { id: id, approve: approve, __RequestVerificationToken: token },
+                success: function (result) {
+                    if (result.success) {
+                        var row = $("#request-" + id);
+                        var tagClass = "tag-" + result.status.toLowerCase();
+                        row.find(".status-cell").html('<span class="tag ' + tagClass + '">' + result.status + '</span>');
+                        row.find(".action-cell").html('<span class="text-muted">Done</span>');
+                    }
+                    showMessage(result.message, result.success);
+                },
+                error: function () {
+                    showMessage("Something went wrong. Please try again.", false);
+                }
+            });
+        });
+    </script>
+}

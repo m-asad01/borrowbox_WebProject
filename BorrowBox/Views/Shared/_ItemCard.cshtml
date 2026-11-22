@@ -17,7 +17,7 @@
         </div>
         <div class="card-body">
             <h5 class="card-title mb-1">@Model.Title</h5>
-            <p class="text-muted small mb-1">@Model.Category | by @Model.Owner.FullName</p>
+            <p class="text-muted small mb-1">@Model.Category | by @Model.OwnerName</p>
             <p class="small mb-3">@Model.Description</p>
 
             <div class="d-flex justify-content-between align-items-center">
@@ -40,11 +40,10 @@
                 }
                 else if (isMember)
                 {
-                    <form asp-controller="Items" asp-action="RequestItem" method="post" class="d-flex gap-1">
-                        <input type="hidden" name="itemId" value="@Model.Id" />
-                        <input type="number" name="days" value="1" min="1" max="30" class="form-control form-control-sm days-input" title="Number of days" />
-                        <button type="submit" class="btn btn-outline-primary btn-sm">Request</button>
-                    </form>
+                    <div class="d-flex gap-1">
+                        <input type="number" value="1" min="1" max="30" class="form-control form-control-sm days-input" />
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-request" data-id="@Model.Id">Request</button>
+                    </div>
                 }
             </div>
         </div>

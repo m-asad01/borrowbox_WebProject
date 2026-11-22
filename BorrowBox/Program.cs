@@ -1,16 +1,15 @@
 using BorrowBox.Data;
 using BorrowBox.Models;
+using BorrowBox.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Database connection (SQL Server LocalDB)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 2. ASP.NET Core Identity (users and roles)
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 6;
@@ -23,7 +22,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// 3. Where to send users who are not logged in or not allowed
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -32,9 +30,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IRequestRepository, RequestRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 var app = builder.Build();
 
-// 4. Create the database and add demo data (only the first time)
 using (var scope = app.Services.CreateScope())
 {
     await DbSeeder.SeedAsync(scope.ServiceProvider);

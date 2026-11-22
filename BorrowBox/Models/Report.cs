@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BorrowBox.Models
 {
-    // A report against an item (the admin reviews these)
     public class Report
     {
         public int Id { get; set; }
@@ -11,5 +12,11 @@ namespace BorrowBox.Models
         public string Reason { get; set; }
 
         public DateTime ReportedAt { get; set; }
+
+        [NotMapped]
+        public string ItemTitle { get; set; }
+
+        [NotMapped]
+        public string OwnerName { get; set; }
     }
 }

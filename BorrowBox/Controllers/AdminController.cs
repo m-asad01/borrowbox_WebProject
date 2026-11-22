@@ -1,105 +1,59 @@
-using BorrowBox.Data;
-using BorrowBox.Models;
+using BorrowBox.Repositories;
 using BorrowBox.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BorrowBox.Controllers
 {
-    // Only the admin can open this
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IItemRepository _itemRepository;
+        private readonly IRequestRepository _requestRepository;
+        private readonly IReportRepository _reportRepository;
+        private readonly IUserRepository _userRepository;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public AdminController(IItemRepository itemRepository, IRequestRepository requestRepository,
+                               IReportRepository reportRepository, IUserRepository userRepository)
         {
-            _context = context;
-            _userManager = userManager;
+            _itemRepository = itemRepository;
+            _requestRepository = requestRepository;
+            _reportRepository = reportRepository;
+            _userRepository = userRepository;
         }
 
-        // Admin home page (dashboard)
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var members = await _userManager.GetUsersInRoleAsync("User");
-
-            var listingCounts = await _context.Items
-                .GroupBy(i => i.OwnerId)
-                .Select(g => new { OwnerId = g.Key, Count = g.Count() })
-                .ToListAsync();
-
             var model = new AdminDashboardViewModel();
-
-            model.Users = members
-                .OrderBy(u => u.FullName)
-                .Select(u => new AdminUserRow
-                {
-                    Id = u.Id,
-                    FullName = u.FullName,
-                    Email = u.Email,
-                    IsBlocked = u.IsBlocked,
-                    ListingsCount = listingCounts
-                        .Where(c => c.OwnerId == u.Id)
-                        .Select(c => c.Count)
-                        .FirstOrDefault()
-                })
-                .ToList();
-
-            model.Items = await _context.Items
-                .Include(i => i.Owner)
-                .OrderByDescending(i => i.CreatedAt)
-                .ToListAsync();
-
-            model.Reports = await _context.Reports
-                .Include(r => r.Item).ThenInclude(i => i.Owner)
-                .OrderByDescending(r => r.ReportedAt)
-                .ToListAsync();
+            model.Users = _userRepository.GetMembers();
+            model.Items = _itemRepository.GetAll();
+            model.Reports = _reportRepository.GetAll();
 
             model.TotalUsers = model.Users.Count;
             model.TotalListings = model.Items.Count;
             model.ReportedCount = model.Reports.Count;
-            model.ActiveRequests = await _context.ItemRequests.CountAsync(r => r.Status == "Pending");
+            model.ActiveRequests = _requestRepository.CountPending();
 
             return View(model);
         }
 
-        // Block or unblock a user
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleBlock(string id)
+        public IActionResult ToggleBlock(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            bool isBlocked = _userRepository.ToggleBlock(id);
 
-            user.IsBlocked = !user.IsBlocked;
-            await _userManager.UpdateAsync(user);
-
-            TempData["Message"] = user.IsBlocked ? "User blocked." : "User unblocked.";
+            TempData["Message"] = isBlocked ? "User blocked." : "User unblocked.";
             return Redirect(Url.Action("Index", "Admin") + "#users");
         }
 
-        // Remove an item (its requests and reports are removed too)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveItem(int id)
+        public IActionResult RemoveItem(int id)
         {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
+            _itemRepository.Delete(id);
 
-            _context.Items.Remove(item);
-            await _context.SaveChangesAsync();
-
-            TempData["Message"] = "Item removed.";
-            return Redirect(Url.Action("Index", "Admin") + "#listings");
+            return Json(new { success = true, message = "Item removed." });
         }
     }
 }

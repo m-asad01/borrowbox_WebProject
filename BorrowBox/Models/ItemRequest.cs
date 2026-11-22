@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BorrowBox.Models
 {
-    // A request sent by a user to borrow or rent an item
     public class ItemRequest
     {
         public int Id { get; set; }
@@ -13,9 +14,20 @@ namespace BorrowBox.Models
 
         public int Days { get; set; }
 
-        // Pending, Approved or Rejected
         public string Status { get; set; } = "Pending";
 
         public DateTime RequestedAt { get; set; }
+
+        [NotMapped]
+        public string ItemTitle { get; set; }
+
+        [NotMapped]
+        public string ItemListingType { get; set; }
+
+        [NotMapped]
+        public string OwnerName { get; set; }
+
+        [NotMapped]
+        public string RequesterName { get; set; }
     }
 }

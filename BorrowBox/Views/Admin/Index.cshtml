@@ -5,13 +5,11 @@
 
 <div class="container mt-4">
 
-    <!-- Heading -->
     <div class="mb-4">
         <h2 class="mb-1">Admin Dashboard</h2>
         <p class="text-muted mb-0">Overview of the BorrowBox platform.</p>
     </div>
 
-    <!-- Summary cards -->
     <div class="row g-3 mb-4">
         <div class="col-lg-3 col-sm-6">
             <div class="stat-card">
@@ -51,7 +49,6 @@
         </div>
     </div>
 
-    <!-- Users -->
     <div class="card mb-4" id="users">
         <div class="card-body">
             <h5 class="mb-3">Users</h5>
@@ -108,7 +105,6 @@
         </div>
     </div>
 
-    <!-- All listings -->
     <div class="card mb-4" id="listings">
         <div class="card-body">
             <h5 class="mb-3">All Listings</h5>
@@ -126,9 +122,9 @@
                     <tbody>
                         @foreach (var item in Model.Items)
                         {
-                            <tr>
+                            <tr id="item-@item.Id">
                                 <td>@item.Title</td>
-                                <td>@item.Owner.FullName</td>
+                                <td>@item.OwnerName</td>
                                 <td><span class="tag @(item.ListingType == "Rent" ? "tag-rent" : "tag-borrow")">@item.ListingType</span></td>
                                 <td>
                                     @if (item.ListingType == "Rent")
@@ -141,10 +137,7 @@
                                     }
                                 </td>
                                 <td>
-                                    <form asp-controller="Admin" asp-action="RemoveItem" method="post" class="d-inline" onsubmit="return confirm('Remove this item?');">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Remove</button>
-                                    </form>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-remove" data-id="@item.Id">Remove</button>
                                 </td>
                             </tr>
                         }
@@ -158,7 +151,6 @@
         </div>
     </div>
 
-    <!-- Reported items -->
     <div class="card" id="reports">
         <div class="card-body">
             <h5 class="mb-3">Reported Items</h5>
@@ -175,16 +167,13 @@
                     <tbody>
                         @foreach (var report in Model.Reports)
                         {
-                            <tr>
-                                <td>@report.Item.Title</td>
-                                <td>@report.Item.Owner.FullName</td>
+                            <tr class="report-of-@report.ItemId">
+                                <td>@report.ItemTitle</td>
+                                <td>@report.OwnerName</td>
                                 <td>@report.Reason</td>
                                 <td>
-                                    <a asp-controller="Home" asp-action="Index" asp-route-search="@report.Item.Title" class="btn btn-outline-primary btn-sm">View</a>
-                                    <form asp-controller="Admin" asp-action="RemoveItem" method="post" class="d-inline" onsubmit="return confirm('Remove this item?');">
-                                        <input type="hidden" name="id" value="@report.Item.Id" />
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Remove</button>
-                                    </form>
+                                    <a asp-controller="Home" asp-action="Index" asp-route-search="@report.ItemTitle" class="btn btn-outline-primary btn-sm">View</a>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-remove" data-id="@report.ItemId">Remove</button>
                                 </td>
                             </tr>
                         }
@@ -199,3 +188,35 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        var removeUrl = '@Url.Action("RemoveItem", "Admin")';
+
+        $(document).on("click", ".btn-remove", function () {
+            var id = $(this).data("id");
+
+            if (!confirm("Remove this item?")) {
+                return;
+            }
+
+            var token = $("#tokenForm input[name='__RequestVerificationToken']").val();
+
+            $.ajax({
+                url: removeUrl,
+                type: "POST",
+                data: { id: id, __RequestVerificationToken: token },
+                success: function (result) {
+                    if (result.success) {
+                        $("#item-" + id).remove();
+                        $(".report-of-" + id).remove();
+                    }
+                    showMessage(result.message, result.success);
+                },
+                error: function () {
+                    showMessage("Something went wrong. Please try again.", false);
+                }
+            });
+        });
+    </script>
+}
